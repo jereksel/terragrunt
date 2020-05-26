@@ -6,6 +6,7 @@ import (
 	"github.com/gruntwork-io/terragrunt/shell"
 	"github.com/hashicorp/terraform/command"
 	"os"
+	"runtime"
 )
 
 // 1. Download the given source URL, which should use Terraform's module source syntax, into a temporary folder
@@ -25,6 +26,10 @@ func downloadTerraformProvider(provider *config.CustomProvider, terragruntOption
 	}
 
 	binaryLocation := terragruntOptions.WorkingDir + "/" + command.DefaultPluginVendorDir + "/terraform-provider-" + provider.Name
+
+	if runtime.GOOS == "windows" {
+		binaryLocation += ".exe"
+	}
 
 	if err := compileGoProject(terraformSource.WorkingDir, binaryLocation, terragruntOptions); err != nil {
 		return err
