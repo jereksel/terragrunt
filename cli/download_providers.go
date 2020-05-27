@@ -21,7 +21,7 @@ func downloadTerraformProvider(provider *config.CustomProvider, terragruntOption
 		return err
 	}
 
-	if err := downloadTerraformSourceIfNecessary(terraformSource, terragruntOptions, terragruntConfig); err != nil {
+	if err := downloadTerraformSourceIfNecessary(terraformSource, terragruntOptions, terragruntConfig, false); err != nil {
 		return err
 	}
 

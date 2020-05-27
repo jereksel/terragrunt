@@ -295,7 +295,7 @@ func testDownloadTerraformSourceIfNecessary(t *testing.T, canonicalUrl string, d
 	err = PopulateTerraformVersion(terragruntOptions)
 	assert.Nil(t, err, "For terraform source %v: %v", terraformSource, err)
 
-	err = downloadTerraformSourceIfNecessary(terraformSource, terragruntOptions, terragruntConfig)
+	err = downloadTerraformSourceIfNecessary(terraformSource, terragruntOptions, terragruntConfig, true)
 	require.NoError(t, err, "For terraform source %v: %v", terraformSource, err)
 
 	expectedFilePath := util.JoinPath(downloadDir, "main.tf")
@@ -316,7 +316,7 @@ func testAlreadyHaveLatestCode(t *testing.T, canonicalUrl string, downloadDir st
 	opts, err := options.NewTerragruntOptionsForTest("./should-not-be-used")
 	assert.Nil(t, err, "Unexpected error creating NewTerragruntOptionsForTest: %v", err)
 
-	actual, err := alreadyHaveLatestCode(terraformSource, opts)
+	actual, err := alreadyHaveLatestCode(terraformSource, opts, true)
 	assert.Nil(t, err, "Unexpected error for terraform source %v: %v", terraformSource, err)
 	assert.Equal(t, expected, actual, "For terraform source %v", terraformSource)
 }

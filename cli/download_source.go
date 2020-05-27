@@ -54,7 +54,7 @@ func downloadTerraformSource(source string, terragruntOptions *options.Terragrun
 		return err
 	}
 
-	if err := downloadTerraformSourceIfNecessary(terraformSource, terragruntOptions, terragruntConfig); err != nil {
+	if err := downloadTerraformSourceIfNecessary(terraformSource, terragruntOptions, terragruntConfig, true); err != nil {
 		return err
 	}
 
@@ -70,7 +70,7 @@ func downloadTerraformSource(source string, terragruntOptions *options.Terragrun
 }
 
 // Download the specified TerraformSource if the latest code hasn't already been downloaded.
-func downloadTerraformSourceIfNecessary(terraformSource *TerraformSource, terragruntOptions *options.TerragruntOptions, terragruntConfig *config.TerragruntConfig) error {
+func downloadTerraformSourceIfNecessary(terraformSource *TerraformSource, terragruntOptions *options.TerragruntOptions, terragruntConfig *config.TerragruntConfig, shouldContainTerraformCode bool) error {
 	if terragruntOptions.SourceUpdate {
 		terragruntOptions.Logger.Printf("The --%s flag is set, so deleting the temporary folder %s before downloading source.", OPT_TERRAGRUNT_SOURCE_UPDATE, terraformSource.DownloadDir)
 		if err := os.RemoveAll(terraformSource.DownloadDir); err != nil {
@@ -78,7 +78,7 @@ func downloadTerraformSourceIfNecessary(terraformSource *TerraformSource, terrag
 		}
 	}
 
-	alreadyLatest, err := alreadyHaveLatestCode(terraformSource, terragruntOptions)
+	alreadyLatest, err := alreadyHaveLatestCode(terraformSource, terragruntOptions, shouldContainTerraformCode)
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func downloadTerraformSourceIfNecessary(terraformSource *TerraformSource, terrag
 // DownloadFolder. This helps avoid downloading the same code multiple times. Note that if the TerraformSource points
 // to a local file path, we assume the user is doing local development and always return false to ensure the latest
 // code is downloaded (or rather, copied) every single time. See the processTerraformSource method for more info.
-func alreadyHaveLatestCode(terraformSource *TerraformSource, terragruntOptions *options.TerragruntOptions) (bool, error) {
+func alreadyHaveLatestCode(terraformSource *TerraformSource, terragruntOptions *options.TerragruntOptions, shouldContainTerraformCode bool) (bool, error) {
 	if isLocalSource(terraformSource.CanonicalSourceURL) ||
 		!util.FileExists(terraformSource.DownloadDir) ||
 		!util.FileExists(terraformSource.WorkingDir) ||
@@ -126,7 +126,7 @@ func alreadyHaveLatestCode(terraformSource *TerraformSource, terragruntOptions *
 		return false, errors.WithStackTrace(err)
 	}
 
-	if len(tfFiles) == 0 {
+	if shouldContainTerraformCode && len(tfFiles) == 0 {
 		terragruntOptions.Logger.Printf("Working dir %s exists but contains no Terraform files, so assuming code needs to be downloaded again.", terraformSource.WorkingDir)
 		return false, nil
 	}
